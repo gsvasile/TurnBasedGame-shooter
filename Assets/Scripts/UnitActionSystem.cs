@@ -14,9 +14,15 @@ public class UnitActionSystem : MonoBehaviour
     [SerializeField] private Unit selectedUnit;
     [SerializeField] private LayerMask unitPlaneLayerMask;
 
-    public void Awake()
+    private void Awake()
     {
-        
+        if (Instance != null)
+        {
+            Debug.LogError("There is more than one UnitActionSystem! " + transform + " - " + Instance);
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
     }
 
     private void Update()
