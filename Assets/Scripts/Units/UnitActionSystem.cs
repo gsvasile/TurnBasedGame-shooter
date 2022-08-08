@@ -14,23 +14,24 @@ public class UnitActionSystem : MonoBehaviour
     [SerializeField] private Unit selectedUnit;
     [SerializeField] private LayerMask unitPlaneLayerMask;
 
-    public void Awake()
+    private void Awake()
     {
-        
+        if (Instance != null)
+        {
+            Debug.LogError($"There is more than one UnitActionSystem! {transform} - {Instance}");
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            if (TryHandleUnitSelection())
+            if (!TryHandleUnitSelection())
             {
-                return;
-            }
-
-            if (selectedUnit != null)
-            {
-                selectedUnit.Move(MouseWorld.GetPosition());
+                MoveSelectedUnit(MouseWorld.GetPosition());
             }
         }
     }
@@ -55,5 +56,15 @@ public class UnitActionSystem : MonoBehaviour
         selectedUnit = unit;
 
         OnSelectedUnitChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void MoveSelectedUnit(Vector3 mousePosition)
+    {
+        if (selectedUnit == null)
+        {
+            return;
+        }
+
+        selectedUnit.Move(MouseWorld.GetPosition());
     }
 }

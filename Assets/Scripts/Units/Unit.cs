@@ -7,17 +7,25 @@ public class Unit : MonoBehaviour
     private const string isWalkingAnimatorProperty = "IsWalking";
 
     [SerializeField] private Animator unitAnimator;
+
     private Vector3 targetPosition;
+    private GridPosition gridPosition;
 
     private void Awake()
     {
         targetPosition = transform.position;
     }
 
+    private void Start()
+    {
+        gridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
+        LevelGrid.Instance.AddUnitAtGridPosition(gridPosition, this);
+    }
+
     private void Update()
     {
         float stoppingDistance = .1f;
-        if(Vector3.Distance(transform.position, targetPosition) > stoppingDistance)
+        if (Vector3.Distance(transform.position, targetPosition) > stoppingDistance)
         {
             Vector3 moveDirection = MoveUnitToTargetPosition();
             RotateUnitToFaceDirectionMoving(moveDirection);
@@ -26,6 +34,14 @@ public class Unit : MonoBehaviour
         else
         {
             unitAnimator.SetBool(isWalkingAnimatorProperty, false);
+        }
+
+        GridPosition newgridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
+
+        if (newgridPosition != gridPosition)
+        {
+            LevelGrid.Instance.UnitMovedGridPosition(this, gridPosition, newgridPosition);
+            gridPosition = newgridPosition;
         }
     }
 
